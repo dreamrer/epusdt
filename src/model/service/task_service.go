@@ -195,19 +195,14 @@ func PolygonCallBack(token string, wg *sync.WaitGroup) {
 	}()
 	client := http_client.GetHttpClient()
 	apiKey := config.GetPolygonApi()
-	startBlock, err := data.GetMinStartBlockByWalletAddress(token)
-	if startBlock == 0 {
-		return
-	}
 	resp, err := client.R().SetQueryParams(map[string]string{
-		"module":     "account",
-		"action":     "tokentx",
-		"address":    token,
-		"page":       "1",
-		"offset":     "5",
-		"startblock": strconv.Itoa(startBlock),
-		"sort":       "desc",
-		"apiKey":     apiKey,
+		"module":  "account",
+		"action":  "tokentx",
+		"address": token,
+		"page":    "1",
+		"offset":  "5",
+		"sort":    "desc",
+		"apiKey":  apiKey,
 	}).Get(UsdtPolygonApiUri)
 	if err != nil {
 		panic(err)

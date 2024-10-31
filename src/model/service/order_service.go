@@ -1,11 +1,8 @@
 package service
 
 import (
-	"encoding/json"
 	"fmt"
 	"math/rand"
-	"net/http"
-	"strconv"
 	"sync"
 	"time"
 
@@ -103,14 +100,6 @@ func CreateTransaction(req *request.CreateTransactionRequest) (*response.CreateT
 		NotifyUrl:    req.NotifyUrl,
 		RedirectUrl:  req.RedirectUrl,
 	}
-	if channel == "polygon" {
-		apiKey := config.GetPolygonApi()
-		startBlock, err := getNowPolygonBlock(apiKey)
-		if err != nil {
-			return nil, err
-		}
-		order.StartBlock = startBlock
-	}
 	err = data.CreateOrderWithTransaction(tx, order)
 	if err != nil {
 		tx.Rollback()
@@ -137,36 +126,6 @@ func CreateTransaction(req *request.CreateTransactionRequest) (*response.CreateT
 		PaymentUrl:     fmt.Sprintf("%s/pay/checkout-counter/%s", config.GetAppUri(), order.TradeId),
 	}
 	return resp, nil
-}
-
-func getNowPolygonBlock(apiKey string) (int, error) {
-	// TODO 可能会被 rate limit
-
-	client := http.Client{
-		Timeout: 10 * time.Second,
-	}
-
-	resp, err := client.Get(fmt.Sprintf("https://api.polygonscan.com/api?module=block&action=getblocknobytime&timestamp=%d&closest=before&apikey=%s", time.Now().Unix(), apiKey))
-	if err != nil {
-		return 0, err
-	}
-	defer resp.Body.Close()
-
-	var result map[string]interface{}
-
-	err = json.NewDecoder(resp.Body).Decode(&result)
-	if err != nil {
-		return 0, err
-	}
-	block, ok := result["result"].(string)
-	if !ok {
-		return 0, fmt.Errorf("invalid block value")
-	}
-	blockInt, err := strconv.Atoi(block)
-	if err != nil {
-		return 0, err
-	}
-	return blockInt, nil
 }
 
 // OrderProcessing 成功处理订单

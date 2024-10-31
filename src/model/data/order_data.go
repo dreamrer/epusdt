@@ -3,12 +3,13 @@ package data
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/assimon/luuu/model/dao"
 	"github.com/assimon/luuu/model/mdb"
 	"github.com/assimon/luuu/model/request"
 	"github.com/go-redis/redis/v8"
 	"gorm.io/gorm"
-	"time"
 )
 
 var (
@@ -90,18 +91,6 @@ func GetTradeIdByWalletAddressAndAmount(token string, amount float64) (string, e
 		return "", err
 	}
 	return result, nil
-}
-
-// GetMinStartBlockByWalletAddress 通过钱包地址获取等待支付中的交易号
-func GetMinStartBlockByWalletAddress(token string) (int, error) {
-	var minStartBlock int
-	err := dao.Mdb.Model(&mdb.Orders{}).
-		Where("status = 1 and token = ?", token).
-		Order("start_block ASC").
-		Limit(1).
-		Pluck("start_block", &minStartBlock).
-		Error
-	return minStartBlock, err
 }
 
 // LockTransaction 锁定交易
