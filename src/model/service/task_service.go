@@ -119,7 +119,7 @@ func Trc20CallBack(token string, wg *sync.WaitGroup) {
 		panic(err)
 	}
 	if resp.StatusCode() != http.StatusOK {
-		panic(err)
+		panic(resp.StatusCode())
 	}
 	var trc20Resp UsdtTrc20Resp
 	err = json.Cjson.Unmarshal(resp.Body(), &trc20Resp)
@@ -200,7 +200,7 @@ func PolygonCallBack(token string, wg *sync.WaitGroup) {
 		"action":  "tokentx",
 		"address": token,
 		"page":    "1",
-		"offset":  "5",
+		"offset":  "10",
 		"sort":    "desc",
 		"apiKey":  apiKey,
 	}).Get(UsdtPolygonApiUri)
@@ -208,7 +208,7 @@ func PolygonCallBack(token string, wg *sync.WaitGroup) {
 		panic(err)
 	}
 	if resp.StatusCode() != http.StatusOK {
-		panic(err)
+		panic(resp.StatusCode())
 	}
 	//println(resp.String())
 	var polygonResp PolygonResp
@@ -229,6 +229,9 @@ func PolygonCallBack(token string, wg *sync.WaitGroup) {
 			continue
 		}
 		decimalQuant, err := decimal.NewFromString(transfer.Value)
+		if err != nil {
+			panic(err)
+		}
 		decimalDivisor := decimal.NewFromFloat(1000000)
 		amount := decimalQuant.Div(decimalDivisor).InexactFloat64()
 		tradeId, err := data.GetTradeIdByWalletAddressAndAmount(token, amount)
@@ -246,6 +249,9 @@ func PolygonCallBack(token string, wg *sync.WaitGroup) {
 		// 区块的确认时间必须在订单创建时间之后
 		createTime := order.CreatedAt.TimestampWithMillisecond()
 		timestamp, err := strconv.ParseInt(transfer.TimeStamp, 10, 64)
+		if err != nil {
+			panic(err)
+		}
 		if timestamp < createTime/1000 {
 			panic("Orders cannot actually be matched")
 		}

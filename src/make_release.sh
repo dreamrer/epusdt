@@ -1,0 +1,1 @@
+goreleaser --clean --skip=publish
