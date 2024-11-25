@@ -19,4 +19,5 @@ Polygon 链收款需要在 .env 中填写 `polygon_api` ，否则可能会被 po
 
 ### URL 基本格式：
 https://域名/api/v1/order/create-transaction
+
 https://域名/api/v1/order/create-transaction?channel=polygon&exchange_rate=7.2
